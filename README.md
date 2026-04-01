@@ -176,4 +176,4 @@ Contributions are welcome! Please submit PRs.
 
 ---
 
-Based on [G0DM0D3](https://github.com/elder-plinius/G0DM0D3) by Pliny the Prompter
+Developed by [Manish4325](https://github.com/Manish4325)
