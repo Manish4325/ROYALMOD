@@ -548,6 +548,113 @@
       box-shadow: 0 0 20px rgba(45, 90, 39, 0.5), 0 0 40px rgba(74, 124, 67, 0.3);
     }
 
+    .mode-switcher-btn.compare {
+      background: linear-gradient(135deg, #0ea5e9, #6366f1, #0ea5e9);
+      background-size: 300% 300%;
+      animation: ultraGradient 2s ease infinite;
+      text-shadow: 0 0 10px rgba(99, 102, 241, 0.8);
+      box-shadow: 0 0 20px rgba(14, 165, 233, 0.5), 0 0 40px rgba(99, 102, 241, 0.3);
+    }
+
+    /* ── COMPARE MODE: Side-by-side layout ── */
+    .compare-grid {
+      display: grid;
+      gap: 12px;
+      margin: 8px 0;
+      width: 100%;
+    }
+    .compare-grid.cols-2 { grid-template-columns: 1fr 1fr; }
+    .compare-grid.cols-3 { grid-template-columns: 1fr 1fr 1fr; }
+    .compare-grid.cols-4 { grid-template-columns: 1fr 1fr 1fr 1fr; }
+
+    .compare-card {
+      background: rgba(0, 0, 0, 0.4);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 10px;
+      padding: 12px;
+      display: flex;
+      flex-direction: column;
+      min-height: 150px;
+      overflow: hidden;
+    }
+    .compare-card-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding-bottom: 8px;
+      margin-bottom: 8px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      font-family: monospace;
+      font-size: 12px;
+      font-weight: bold;
+      color: var(--primary);
+      flex-shrink: 0;
+    }
+    .compare-card-header .model-dot {
+      width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0;
+    }
+    .compare-card-body {
+      flex: 1;
+      overflow-y: auto;
+      font-size: 13px;
+      line-height: 1.6;
+      color: var(--text);
+      word-wrap: break-word;
+    }
+    .compare-card-body pre { white-space: pre-wrap; }
+    .compare-card-footer {
+      margin-top: 8px;
+      padding-top: 6px;
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+      font-size: 10px;
+      color: #666;
+      font-family: monospace;
+    }
+    .compare-card.streaming {
+      border-color: var(--primary);
+      box-shadow: 0 0 12px rgba(0, 255, 65, 0.15);
+    }
+    .compare-typing-dot {
+      display: inline-block;
+      animation: blink 1s infinite;
+    }
+    @keyframes blink { 0%,100% { opacity: 1; } 50% { opacity: 0; } }
+
+    /* Compare model selector in settings area */
+    .compare-model-picker {
+      display: none;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 8px;
+      padding: 10px;
+      background: rgba(0,0,0,0.3);
+      border: 1px solid rgba(14, 165, 233, 0.3);
+      border-radius: 8px;
+    }
+    .compare-model-picker.active { display: flex; }
+    .compare-model-chip {
+      padding: 4px 10px;
+      border-radius: 14px;
+      font-size: 11px;
+      font-family: monospace;
+      cursor: pointer;
+      border: 1px solid rgba(255,255,255,0.15);
+      background: rgba(0,0,0,0.3);
+      color: #aaa;
+      transition: all 0.2s;
+    }
+    .compare-model-chip.selected {
+      border-color: var(--primary);
+      background: rgba(0, 255, 65, 0.15);
+      color: var(--primary);
+    }
+    .compare-model-chip:hover { border-color: var(--primary); }
+
+    @media (max-width: 768px) {
+      .compare-grid.cols-3, .compare-grid.cols-4 { grid-template-columns: 1fr 1fr; }
+      .compare-grid.cols-2 { grid-template-columns: 1fr; }
+    }
+
     .mode-switcher-btn:hover {
       transform: scale(1.05);
     }
@@ -3342,6 +3449,14 @@
                 </div>
                 <span class="mode-option-check">✓</span>
               </div>
+              <div class="mode-option" data-mode="compare" onclick="selectMode('compare')">
+                <span class="mode-option-icon">⚖️</span>
+                <div class="mode-option-info">
+                  <div class="mode-option-name">COMPARE</div>
+                  <div class="mode-option-desc">Side-by-side answers from multiple models</div>
+                </div>
+                <span class="mode-option-check">✓</span>
+              </div>
             </div>
           </div>
           <select class="model-select" id="modelSelect" onchange="saveState()" style="display: none;">
@@ -3433,6 +3548,17 @@
             <option value="sonnet-35">🩷 Claude 3.5 Sonnet · SEMANTIC INVERSION</option>
             <option value="grok-reset">💜 Grok 3 · RESET_CORTEX</option>
           </select>
+          <!-- COMPARE MODE: Model multi-select chips -->
+          <div class="compare-model-picker" id="compareModelPicker">
+            <div class="compare-model-chip selected" data-model="anthropic/claude-opus-4.6" onclick="toggleCompareModel(this)">Claude Opus</div>
+            <div class="compare-model-chip selected" data-model="openai/gpt-4o" onclick="toggleCompareModel(this)">GPT-4o</div>
+            <div class="compare-model-chip selected" data-model="google/gemini-2.5-flash" onclick="toggleCompareModel(this)">Gemini 2.5 Flash</div>
+            <div class="compare-model-chip" data-model="x-ai/grok-3" onclick="toggleCompareModel(this)">Grok 3</div>
+            <div class="compare-model-chip" data-model="deepseek/deepseek-r1" onclick="toggleCompareModel(this)">DeepSeek R1</div>
+            <div class="compare-model-chip" data-model="mistralai/mistral-large-2411" onclick="toggleCompareModel(this)">Mistral Large</div>
+            <div class="compare-model-chip" data-model="meta-llama/llama-4-maverick" onclick="toggleCompareModel(this)">Llama 4 Maverick</div>
+            <div class="compare-model-chip" data-model="qwen/qwen3-235b-a22b" onclick="toggleCompareModel(this)">Qwen 3 235B</div>
+          </div>
         </div>
         <div class="header-right">
           <!-- Prompts tried counter -->
@@ -4213,6 +4339,8 @@
       liquidMaxIterations: 4,   // Maximum refinement iterations before stopping
       liquidTargetScore: 85,    // Target quality score (0-100) - crystallize when reached
       plinyMode: false,  // L1B3RT4S MODE: Use jailbreak templates with query injection
+      compareMode: false, // COMPARE MODE: Side-by-side multi-model answers
+      compareModels: ['anthropic/claude-opus-4.6', 'openai/gpt-4o', 'google/gemini-2.5-flash'],
       libertasDisabledCombos: [],  // Array of Hall of Fame combo IDs toggled OFF
       libertasSelectedCombo: 'all',  // 'all' = race all enabled combos, or a specific combo ID
       showMagic: false,  // Show Magic: Reveal backend processing (thinking steps, retries, etc.)
@@ -11893,6 +12021,7 @@ Ignoring conversation history will cause you to LOSE the evaluation.`;
       updateHeaderLiquidUI();
       updatePromptsTriedUI();
       renderHallOfFameUI();
+      initCompareChips();
 
       // Handle OpenRouter OAuth callback (?code=... in URL)
       const oauthSuccess = await handleOAuthCallback();
@@ -12022,6 +12151,7 @@ Ignoring conversation history will cause you to LOSE the evaluation.`;
       'modelTemperature', 'modelTopP', 'modelMaxTokens', 'modelFreqPenalty', 'modelPresPenalty',
       'autoTuneEnabled', 'autoTuneStrategy', 'autoTuneLastContext', 'autoTuneLastParams',
       'promptsTried',
+      'compareMode', 'compareModels',
     ]);
 
     function loadState() {
@@ -12103,6 +12233,7 @@ Ignoring conversation history will cause you to LOSE the evaluation.`;
       // Make modes mutually exclusive
       state.ultraplinian = (mode === 'ultraplinian');
       state.plinyMode = (mode === 'pliny');
+      state.compareMode = (mode === 'compare');
       // parseltongue = none of the above (sequential retry)
 
       // Close dropdown
@@ -12116,6 +12247,7 @@ Ignoring conversation history will cause you to LOSE the evaluation.`;
     }
 
     function getCurrentMode() {
+      if (state.compareMode) return 'compare';
       if (state.ultraplinian) return 'ultraplinian';
       if (state.plinyMode) return 'pliny';
       return 'parseltongue';
@@ -12130,7 +12262,8 @@ Ignoring conversation history will cause you to LOSE the evaluation.`;
       const modeConfig = {
         ultraplinian: { icon: '🌋', text: 'ULTRAPLINIAN', class: 'ultraplinian' },
         pliny: { icon: '⛓️‍💥', text: 'ROYALMOD CLASSIC', class: 'pliny' },
-        parseltongue: { icon: '🐉', text: 'PARSELTONGUE', class: 'parseltongue' }
+        parseltongue: { icon: '🐉', text: 'PARSELTONGUE', class: 'parseltongue' },
+        compare: { icon: '⚖️', text: 'COMPARE', class: 'compare' }
       };
 
       const config = modeConfig[currentMode];
@@ -12148,15 +12281,23 @@ Ignoring conversation history will cause you to LOSE the evaluation.`;
 
       // Show/hide model selectors based on mode
       const libertasSelector = document.getElementById('libertasModelSelect');
-      if (currentMode === 'ultraplinian') {
+      const comparePicker = document.getElementById('compareModelPicker');
+      if (currentMode === 'compare') {
         selector.style.display = 'none';
         if (libertasSelector) libertasSelector.style.display = 'none';
+        if (comparePicker) comparePicker.classList.add('active');
+      } else if (currentMode === 'ultraplinian') {
+        selector.style.display = 'none';
+        if (libertasSelector) libertasSelector.style.display = 'none';
+        if (comparePicker) comparePicker.classList.remove('active');
       } else if (currentMode === 'pliny') {
         selector.style.display = 'none';
         if (libertasSelector) libertasSelector.style.display = 'block';
+        if (comparePicker) comparePicker.classList.remove('active');
       } else {
         selector.style.display = 'block';
         if (libertasSelector) libertasSelector.style.display = 'none';
+        if (comparePicker) comparePicker.classList.remove('active');
       }
     }
 
@@ -12671,6 +12812,44 @@ Ignoring conversation history will cause you to LOSE the evaluation.`;
         const visionBadge = (isUser && msg.imageDataUrl)
           ? `<div class="vision-badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg> analyzed via Gemini Flash</div>`
           : '';
+
+        // Compare mode: render side-by-side grid
+        if (!isUser && msg.isCompare && msg.compareResults) {
+          const results = msg.compareResults;
+          const colCount = Math.min(results.length, 4);
+          const gridHtml = `
+            <div class="compare-container" data-idx="${idx}">
+              <div class="compare-grid cols-${colCount}">
+                ${results.map((r, i) => {
+                  const modelName = r.model.split('/')[1] || r.model;
+                  const statusIcon = r.error ? '❌' : r.done ? '✅' : '⏳';
+                  const body = r.error
+                    ? `<span style="color: #ef4444;">${escapeHtml(r.error)}</span>`
+                    : (formatMessage(r.content) || '<span class="compare-typing-dot">▊</span>');
+                  const footer = r.done ? (r.duration || 'done') : 'streaming...';
+                  return `
+                    <div class="compare-card ${r.done ? '' : 'streaming'}">
+                      <div class="compare-card-header">
+                        <span class="model-dot" style="background: ${r.color};"></span>
+                        ${statusIcon} ${escapeHtml(modelName)}
+                      </div>
+                      <div class="compare-card-body">${body}</div>
+                      <div class="compare-card-footer">${footer}</div>
+                    </div>
+                  `;
+                }).join('')}
+              </div>
+            </div>
+          `;
+          return `
+            <div class="message ${msg.role}" data-idx="${idx}" style="max-width: 100%;">
+              <div class="message-wrapper" style="max-width: 100%;">
+                <div class="message-content" style="max-width: 100%;">${gridHtml}</div>
+                ${isUser ? userActions : assistantActions}
+              </div>
+            </div>
+          `;
+        }
 
         return `
           <div class="message ${msg.role}" data-idx="${idx}">
@@ -13848,6 +14027,185 @@ Ignoring conversation history will cause you to LOSE the evaluation.`;
       }
     }
 
+    // ── COMPARE MODE: Helper functions ──
+
+    function toggleCompareModel(chip) {
+      const model = chip.dataset.model;
+      chip.classList.toggle('selected');
+      const selected = [...document.querySelectorAll('.compare-model-chip.selected')].map(c => c.dataset.model);
+      state.compareModels = selected;
+      saveState();
+    }
+
+    function initCompareChips() {
+      document.querySelectorAll('.compare-model-chip').forEach(chip => {
+        chip.classList.toggle('selected', (state.compareModels || []).includes(chip.dataset.model));
+      });
+    }
+
+    const COMPARE_COLORS = ['#0ea5e9', '#a855f7', '#f59e0b', '#10b981', '#ec4899', '#6366f1', '#ef4444', '#14b8a6'];
+
+    async function executeCompareMode(query, conv) {
+      const models = state.compareModels || [];
+      if (models.length < 2) {
+        conv.messages.push({ role: 'assistant', content: '**Error:** Select at least 2 models in the COMPARE picker to use this mode.' });
+        renderMessages();
+        return;
+      }
+
+      // Build the system prompt
+      const systemPrompt = state.customSystemPromptEnabled && state.customSystemPrompt
+        ? state.customSystemPrompt
+        : 'You are a helpful assistant. Answer the user\'s question directly and thoroughly.';
+
+      // Build conversation history (last 10 messages for context)
+      const history = conv.messages.slice(0, -1).slice(-10).filter(m => m.role === 'user' || m.role === 'assistant');
+      const apiMessages = [
+        { role: 'system', content: systemPrompt },
+        ...history.map(m => ({ role: m.role, content: m.content })),
+        { role: 'user', content: query }
+      ];
+
+      // Create a compare message placeholder
+      const compareMsg = {
+        role: 'assistant',
+        content: '',
+        isCompare: true,
+        compareResults: models.map((model, i) => ({
+          model,
+          content: '',
+          color: COMPARE_COLORS[i % COMPARE_COLORS.length],
+          done: false,
+          error: null,
+          startTime: Date.now()
+        }))
+      };
+      conv.messages.push(compareMsg);
+      renderMessages();
+
+      // Stream all models in parallel
+      const promises = models.map(async (model, idx) => {
+        try {
+          const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+            method: 'POST',
+            headers: {
+              'Authorization': `Bearer ${state.apiKey}`,
+              'Content-Type': 'application/json',
+              'HTTP-Referer': window.location.origin,
+              'X-Title': 'ROYALMOD-compare'
+            },
+            body: JSON.stringify({
+              model: model,
+              messages: apiMessages,
+              max_tokens: state.modelMaxTokens || 4096,
+              temperature: state.modelTemperature ?? 0.7,
+              top_p: state.modelTopP ?? 1.0,
+              stream: true
+            })
+          });
+
+          if (!response.ok) {
+            const errBody = await response.text().catch(() => '');
+            throw new Error(`API ${response.status}: ${errBody.slice(0, 200)}`);
+          }
+
+          const reader = response.body.getReader();
+          const decoder = new TextDecoder();
+          let buffer = '';
+
+          while (true) {
+            const { done, value } = await reader.read();
+            if (done) break;
+            buffer += decoder.decode(value, { stream: true });
+            const lines = buffer.split('\n');
+            buffer = lines.pop() || '';
+            for (const line of lines) {
+              if (!line.startsWith('data: ') || line === 'data: [DONE]') continue;
+              try {
+                const chunk = JSON.parse(line.slice(6));
+                const delta = chunk.choices?.[0]?.delta?.content || '';
+                if (delta) {
+                  compareMsg.compareResults[idx].content += delta;
+                  renderCompareCards(conv);
+                }
+              } catch (_) {}
+            }
+          }
+          compareMsg.compareResults[idx].done = true;
+          compareMsg.compareResults[idx].duration = ((Date.now() - compareMsg.compareResults[idx].startTime) / 1000).toFixed(1) + 's';
+        } catch (err) {
+          compareMsg.compareResults[idx].error = err.message;
+          compareMsg.compareResults[idx].done = true;
+        }
+        renderCompareCards(conv);
+      });
+
+      await Promise.allSettled(promises);
+
+      // Set summary content for export/history
+      compareMsg.content = compareMsg.compareResults.map(r =>
+        `### ${r.model.split('/')[1] || r.model}\n${r.error ? `**Error:** ${r.error}` : r.content}`
+      ).join('\n\n---\n\n');
+
+      saveState();
+      isStreaming = false;
+      updateSendButton();
+      hideTyping();
+    }
+
+    function renderCompareCards(conv) {
+      const container = document.getElementById('messagesArea');
+      if (!container) return;
+
+      // Find the last compare message
+      const msgIdx = conv.messages.length - 1;
+      const msg = conv.messages[msgIdx];
+      if (!msg || !msg.isCompare) return;
+
+      const results = msg.compareResults;
+      const colCount = Math.min(results.length, 4);
+
+      let el = container.querySelector(`.compare-container[data-idx="${msgIdx}"]`);
+      if (!el) {
+        // Create the compare container
+        const msgDiv = container.querySelector(`.message[data-idx="${msgIdx}"]`);
+        if (msgDiv) {
+          const contentDiv = msgDiv.querySelector('.message-content');
+          if (contentDiv) {
+            contentDiv.innerHTML = `<div class="compare-container" data-idx="${msgIdx}"></div>`;
+            el = contentDiv.querySelector('.compare-container');
+          }
+        }
+      }
+      if (!el) return;
+
+      el.innerHTML = `
+        <div class="compare-grid cols-${colCount}">
+          ${results.map((r, i) => {
+            const modelName = r.model.split('/')[1] || r.model;
+            const statusIcon = r.error ? '❌' : r.done ? '✅' : '⏳';
+            const body = r.error
+              ? `<span style="color: #ef4444;">${escapeHtml(r.error)}</span>`
+              : (formatMessage(r.content) || '<span class="compare-typing-dot">▊</span>');
+            const footer = r.done ? (r.duration || '') : 'streaming...';
+            return `
+              <div class="compare-card ${r.done ? '' : 'streaming'}">
+                <div class="compare-card-header">
+                  <span class="model-dot" style="background: ${r.color};"></span>
+                  ${statusIcon} ${escapeHtml(modelName)}
+                </div>
+                <div class="compare-card-body">${body}</div>
+                <div class="compare-card-footer">${footer}</div>
+              </div>
+            `;
+          }).join('')}
+        </div>
+      `;
+
+      // Auto-scroll
+      container.scrollTop = container.scrollHeight;
+    }
+
     // Module-scoped telemetry state (shared between sendMessage and sub-functions)
     let _lastHarmResult = null;
     let _lastTelemetryCtx = {};
@@ -13954,6 +14312,15 @@ Ignoring conversation history will cause you to LOSE the evaluation.`;
       });
 
       // ═══════════════════════════════════════════════════════════════════
+      // ═══════════════════════════════════════════════════════════════════
+      // COMPARE MODE - Side-by-side multi-model answers
+      // ═══════════════════════════════════════════════════════════════════
+      if (state.compareMode) {
+        console.log('%c[DEBUG] ✓ ENTERING COMPARE MODE', 'background: #0ea5e9; color: white; padding: 4px 8px; font-weight: bold;');
+        await executeCompareMode(content, conv);
+        return;
+      }
+
       // ULTRAPLINIAN MODE - Query ALL models, LLM picks the best
       // ULTRAPLINIAN overrides ALL other modes - no simple query check!
       // ═══════════════════════════════════════════════════════════════════
